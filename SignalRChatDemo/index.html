@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <link href="Content/bootstrap.css" rel="stylesheet" />
+</head>
+<body>
+    <br />
+    <br />
+    <div class="row">
+        <div class="col-lg-offset-4">
+            <div class="panel panel-primary" style="width: 500px;">
+                <div class="panel-heading">
+                    <label id="userName"> <input type="text" class="form-control" id="txtUserName"/></label>
+                </div>
+                <div class="panel-body" style="min-height: 400px;max-height: 500px; overflow-y: scroll;" id="message">
+                </div>
+                <div class="panel-footer">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Message" aria-describedby="basic-addon2" id="txtMessage">
+                        <span class="input-group-addon btn btn-primary" id="sendMessage">Send</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="Scripts/jquery-2.1.4.js"></script>
+    <script src="Scripts/jquery.signalR-2.2.0.js"></script>
+    <script src="/signalr/hubs"></script>
+    <script>
+        $(document).ready(function () {
+            var messageHub = $.connection.Message;
+            messageHub.client.send = function (user, message, time) {
+                $('#message').append('<br><label class="label label-info">' + user + '</label>:<label class="label label-success">' + message + '</label><label class="label label-info">' + time + '</label>');
+                $('#txtMessage').val('');
+            };
+            $('#sendMessage').click(function () {
+                var setuserName = $('#txtUserName').val();
+                if (!setuserName) {
+                    alert('set user name first');
+                    return false;
+                }
+                var message = $('#txtMessage').val();
+                var userName = $('#userName').text();
+                $.connection.hub.start().done(function () {
+                    var clientId = $.connection.hub.id;
+                    messageHub.server.sendMessage(clientId, setuserName, message);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
